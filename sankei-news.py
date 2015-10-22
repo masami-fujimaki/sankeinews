@@ -11,10 +11,17 @@ import urllib2
 import sys
 
 urls = [
-        {"affairs","http://www.sankei.com/affairs/news/{0:%y%m%d}/afr{0:%y%m%d}{1:0>4}-n1.html"},
+        ["affairs","http://www.sankei.com/affairs/news/{0:%y%m%d}/afr{0:%y%m%d}{1:0>4}-n1.html"],
+        ["politics","http://www.sankei.com/politics/news/{0:%y%m%d}/plt{0:%y%m%d}{1:0>4}-n1.html"],
+        ["world","http://www.sankei.com/world/news/{0:%y%m%d}/wor{0:%y%m%d}{1:0>4}-n1.html"],
+        ["economy","http://www.sankei.com/economy/news/{0:%y%m%d}/ecn{0:%y%m%d}{1:0>4}-n1.html"],
+        ["sports","http://www.sankei.com/sports/news/{0:%y%m%d}/spo{0:%y%m%d}{1:0>4}-n1.html"],
+        ["entertainments","http://www.sankei.com/entertainments/news/{0:%y%m%d}/ent{0:%y%m%d}{1:0>4}-n1.html"],
+        ["life","http://www.sankei.com/life/news/{0:%y%m%d}/lif{0:%y%m%d}{1:0>4}-n1.html"],
        ]
 
 paths = ["./news", "/{0}", "/{0:%y%m%d}"]
+
 
 def get_news(url, category, date):
     news = []
@@ -47,11 +54,10 @@ if __name__ == "__main__":
         date = dateutil.parser.parse(args.date)
     else:
         date = datetime.date.today()
-    print date
 
-    path = _check_dir(paths[0])
  
     for category, url in urls:
+        path = _check_dir(paths[0])
         path = _check_dir(path+paths[1].format(category))
         path = _check_dir(path+paths[2].format(date))
 
