@@ -34,11 +34,18 @@ def get_news(url, category, date):
         except urllib2.HTTPError:
             break
 
-        message = d(".fontMiddiumText").text().encode('latin1').decode('utf-8')
+        try:
+           #message = d(".fontMiddiumText").text().encode('latin1').decode('utf-8')
+           message = d(".fontMiddiumText").text().encode('latin1')
+        except UnicodeDecodeError:
+           continue
+           #raise
+           
         if message is None or message == "":
            break
         m = hashlib.md5()
-        m.update(message.encode('utf-8'))
+        #m.update(message.encode('utf-8'))
+        m.update(message)
         news.append({
             "category": category,
             "date": "{0:%Y-%m-%d}".format(date),
