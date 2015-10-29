@@ -29,26 +29,26 @@ def get_news(url, category, date):
     for n in range(1,10000):
         try:
     	    news_url = url.format(date, n)
-            print news_url
             d =  pq(news_url)
         except urllib2.HTTPError:
             break
 
         try:
-           #message = d(".fontMiddiumText").text().encode('latin1').decode('utf-8')
-           message = d(".fontMiddiumText").text().encode('latin1')
-        except UnicodeDecodeError:
+           title = d("article h1").html().split("<br/>")[1]
+           message = d(".fontMiddiumText").text()
+           date_time = d("time").text()
+        except:
            continue
            #raise
            
-        if message is None or message == "":
+        if message == "":
            break
         m = hashlib.md5()
-        #m.update(message.encode('utf-8'))
-        m.update(message)
+        m.update(message.encode('latin1'))
         news.append({
             "category": category,
-            "date": "{0:%Y-%m-%d}".format(date),
+            "date": date_time,
+            "title": title,
             "text":  message,
             "md5": m.hexdigest(),
             "url": news_url,
@@ -68,6 +68,7 @@ def execute(date):
 
         for news in get_news(url, category, date):
             fp = open(path+"/"+news["md5"], "w") 
+            print news["url"], news["title"].encode('latin1')
             json.dump(news, fp)
             fp.close()
 
