@@ -6,7 +6,7 @@ import os
 import sys
 
 #path = "./news"
-path = "/home/fujimaki/news"
+path = "/home/fujimaki/news_p"
 
 if __name__ == "__main__":
     for (root, dirs, files) in os.walk(path):
@@ -20,6 +20,6 @@ if __name__ == "__main__":
                    #continue
                 print "-----------------------------------"
                 print news["url"]
-                print news["title"].encode('latin1')
-                #print news["text"].encode('latin1')
+                print news["title"]
+                print news["text"]
              
