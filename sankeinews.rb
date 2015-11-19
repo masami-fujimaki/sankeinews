@@ -35,7 +35,7 @@ def urls()
 end
 
 def path()
-    "/home/fujimaki/news_p"
+    "./news"
 end
 
 def news(date)
@@ -60,9 +60,6 @@ def news(date)
             if rec.count == 0
                 col.insert_one(h)
                 print "insert->#{url}\n"
-            else
-                #rec.update_one("$set" => {"date"=>date_time})
-                #print "update->#{url}\n"
             end 
             open(File.join([path,md5]), "w") { |fp|
                 JSON.dump(h, fp)
