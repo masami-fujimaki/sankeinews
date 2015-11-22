@@ -3,7 +3,6 @@ require 'date'
 require 'digest'
 require 'fileutils'
 require 'json'
-require 'mongo'
 require 'oga'
 require 'open-uri'
 require 'optparse'
@@ -39,9 +38,6 @@ def path()
 end
 
 def news(date)
-    Mongo::Logger.logger.level = ::Logger::FATAL
-    db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
-    col = db[:news]
 
     urls().each{|category,v|
         path = File.join([path(), category, date.strftime("%y%m%d")])
@@ -56,11 +52,6 @@ def news(date)
             end
             md5 = Digest::MD5.new.update(text).to_s
             h =  {"category"=>category,"date"=>date_time,"title"=>title,"text"=>text,"url"=>url,"md5"=>md5}
-            rec = col.find(:md5 => md5)
-            if rec.count == 0
-                col.insert_one(h)
-                print "insert->#{url}\n"
-            end 
             open(File.join([path,md5]), "w") { |fp|
                 JSON.dump(h, fp)
             }
@@ -69,14 +60,3 @@ def news(date)
 end
 
 end
-
-#args = {}
-#opt = OptionParser.new
-#opt.on('-d date') {|v| args[:d] = v }
-#opt.parse!(ARGV)
-
-#date = (args[:d] ? Date.parse(args[:d]) : DateTime.now)
-#sankei = Sankei.new.execute(date)
-
-
-
