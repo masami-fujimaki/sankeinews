@@ -9,7 +9,9 @@ Mongo::Logger.logger.level = ::Logger::FATAL
 db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
 col = db[:news]
 
-Dir.glob("./news/**/**").each { |e|
+path = "/home/ec2-user/sankeinews/news"
+
+Dir.glob(path+"/**/**").each { |e|
   next if FileTest.directory?(e)
   news = nil
   open(e, "r") { |f|

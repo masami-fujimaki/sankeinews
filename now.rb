@@ -1,6 +1,7 @@
 require 'date'
 require 'optparse'
-require './sankeinews'
+$LOAD_PATH << File.dirname(__FILE__)
+require 'sankeinews'
 
 args = {}
 opt = OptionParser.new
