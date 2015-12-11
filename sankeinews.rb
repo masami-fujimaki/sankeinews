@@ -42,13 +42,13 @@ class Sankei
     urls().each{|category,v|
       path = File.join([path(), category, date.strftime("%y%m%d")])
       FileUtils.makedirs(path)
-      (1..10000).each{|n|
+      (1..100).each{|n|
         url = v.gsub("{0:%y%m%d}", date.strftime("%y%m%d")).gsub("{1:0>4}", sprintf("%04d", n))
         begin
           title, text, date_time = get_news(open(url))
           date_time = DateTime.parse(date_time)
         rescue => e
-          break
+          next
         end
         md5 = Digest::MD5.new.update(text).to_s
         h =  {"category"=>category,"date"=>date_time,"title"=>title,"text"=>text,"url"=>url,"md5"=>md5}
