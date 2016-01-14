@@ -1,9 +1,10 @@
 
 require 'date'
 require 'bson'
-require 'natto'
 require 'mongo'
 require 'pp'
+
+require './noun'
 
 def update_dictionary(dictionary, nouns, news)
   nouns.each { |noun|
@@ -30,52 +31,18 @@ def revise_text(text)
   text.gsub(/【.*?】/, '')
 end
 
-def analysis(db, category, dictionary, natto)
-  db[:news].find(:category => category).sort(:date => 1).each_with_index { |news, idx|
-    puts "%06d-%s:%s" % [idx, news['category'], news['date']]
-    nodes = []
-    natto.parse(revise_text(news['text'])) { |n|
-      nodes << { :surface => n.surface, :features => n.feature.split(",") }
-    }
-
-    nouns = []
-    noun = nil
-    feature = nil
-    nodes.each { |node|
-      surface = node[:surface]
-      features = node[:features]
-      if features[0] == "名詞"
-        if features[1] == "接尾" or features[1] == "サ変接続" or features[1] == "数"
-          noun = (noun ? noun + surface : surface)
-          feature = (feature ? feature + features[1] : features[1])
-        elsif features[1] == "非自立" or features[1] == "代名詞"
-          next
-        else 
-          nouns << {:noun=>noun, :feature=>feature} if noun
-          noun = surface
-          feature = features[1]
-        end 
-      else
-        nouns << {:noun=>noun, :feature=>feature} if noun
-        noun = nil
-        feature = nil
-      end
-    } 
-
-    update_dictionary(dictionary, nouns, news)
-  }
-end
-
 
 Mongo::Logger.logger.level = ::Logger::FATAL
 db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
-
-natto = Natto::MeCab.new
 
 ['affairs','economy','entertainments','life','politics','sports','world'].each{ |category|
   dictionary = db[category]
   dictionary.drop()
   dictionary.indexes.create_one({:noun=>1}, :unique=>true)
   dictionary.indexes.create_one({:count=>1})
-  analysis(db, category, dictionary, natto)
+  db[:news].find(:category => category).sort(:date => 1).each_with_index { |news, idx|
+    puts "%s:%s" % [news['category'], news['date']]
+    nouns = Noun.analysis(revise_text(news['text']))
+    update_dictionary(dictionary, nouns, news)
+  }
 }
