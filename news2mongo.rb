@@ -4,6 +4,7 @@ require 'digest'
 require 'json'
 require 'mongo'
 require 'pp'
+require './noun'
 
 Mongo::Logger.logger.level = ::Logger::FATAL
 db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
@@ -22,6 +23,7 @@ Dir.glob(path+"/**/**").each { |e|
   if doc.count == 0
     news['date'] = DateTime.parse(news['date'])
     news['text'].strip!
+    news['nouns'] = Noun.analysis(news['text'])
     col.insert_one(news)
     puts news['category']+":"+news['date'].to_s
   end

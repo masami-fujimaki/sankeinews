@@ -5,6 +5,17 @@ require 'pp'
 
 module Noun
 
+
+  def self.add_nouns(noun,feature)
+    @nouns.each { |e|
+      if e[:noun] == noun
+         e[:count] += 1
+         return 
+      end
+    }
+    @nouns << {:noun => noun, :feature => feature, :count => 1}
+  end
+
   def analysis(text)
     natto = Natto::MeCab.new
 
@@ -13,7 +24,7 @@ module Noun
       nodes << { :surface => n.surface, :features => n.feature.split(",") }
     }
 
-    nouns = []
+    @nouns = []
     noun = nil
     feature = nil
     nodes.each { |node|
@@ -26,18 +37,18 @@ module Noun
         elsif features[1] == "非自立" or features[1] == "代名詞"
           next
         else 
-          nouns << {:noun=>noun, :feature=>feature} if noun
+          add_nouns(noun, feature) if noun
           noun = surface
           feature = features[1]
         end 
       else
-        nouns << {:noun=>noun, :feature=>feature} if noun
+        add_nouns(noun, feature) if noun
         noun = nil
         feature = nil
       end
-   } 
+    } 
 
-   nouns
+    @nouns
   end
 
 
