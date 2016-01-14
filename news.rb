@@ -72,8 +72,7 @@ db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
 
 natto = Natto::MeCab.new
 
-#['affairs','economy','entertainments','life','politics','sports','world'].each{ |category|
-['world'].each{ |category|
+['affairs','economy','entertainments','life','politics','sports','world'].each{ |category|
   dictionary = db[category]
   dictionary.drop()
   dictionary.indexes.create_one({:noun=>1}, :unique=>true)
