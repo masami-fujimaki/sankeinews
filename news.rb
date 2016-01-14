@@ -4,19 +4,17 @@ require 'bson'
 require 'mongo'
 require 'pp'
 
-require './noun'
-
-def update_dictionary(dictionary, nouns, news)
+def update_dictionary(dictionary, nouns, news_id)
   nouns.each { |noun|
     dic = dictionary.find({:noun => noun[:noun]}).limit(1)
-    if dic.count == 0 
-      dictionary.insert_one({:noun => noun[:noun], :feature => noun[:feature], :count => 1, :news_ids => [news[:_id]]})
+    if dic.count == 0
+      dictionary.insert_one({:noun => noun[:noun], :feature => noun[:feature], :count => 1, :news_ids => [news_id]})
     else
       dic.each { |e|
         id = e[:_id]
-        if not e[:news_ids].include?(news[:_id])
+        if not e[:news_ids].include?(news_id)
           news_ids = e[:news_ids]
-          news_ids << news[:_id]
+          news_ids << news_id
           dictionary.update_one({:_id =>id}, {"$inc" => {:count => 1}, "$set" => {:news_ids => news_ids}})
         else
           #p "..."
@@ -42,7 +40,6 @@ db = Mongo::Client.new(['127.0.0.1:27017'], :database=>'sankei')
   dictionary.indexes.create_one({:count=>1})
   db[:news].find(:category => category).sort(:date => 1).each_with_index { |news, idx|
     puts "%s:%s" % [news['category'], news['date']]
-    nouns = Noun.analysis(revise_text(news['text']))
-    update_dictionary(dictionary, nouns, news)
+    update_dictionary(dictionary, news['nouns'], news['_id'])
   }
 }
