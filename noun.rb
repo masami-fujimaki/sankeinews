@@ -5,6 +5,7 @@ require 'pp'
 
 module Noun
 
+  @@natto = Natto::MeCab.new
 
   def self.add_nouns(noun,feature)
     @nouns.each { |e|
@@ -17,10 +18,9 @@ module Noun
   end
 
   def analysis(text)
-    natto = Natto::MeCab.new
 
     nodes = []
-    natto.parse(text) { |n|
+    @@natto.parse(text) { |n|
       nodes << { :surface => n.surface, :features => n.feature.split(",") }
     }
 
